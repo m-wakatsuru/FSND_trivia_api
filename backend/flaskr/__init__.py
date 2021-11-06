@@ -54,7 +54,8 @@ def create_app(test_config=None):
 
     return jsonify(
         {
-            "categories": categories
+          "success":True,
+          "categories": categories
         }
     )
 
@@ -228,10 +229,12 @@ def create_app(test_config=None):
   def show_quizzes():
     body = request.get_json()
     previous_id_list = body.get("previous_questions", None)
-    category_name = body.get("quiz_category", None)
-    category_id = Category.query.filter(Category.type == category_name).first().id
+    category_id = int(body['quiz_category']['id'])
 
-    cat_questions = Question.query.filter(Question.category == category_id).all()
+    if category_id == 0:
+      cat_questions = Question.query.all()
+    else:
+      cat_questions = Question.query.filter(Question.category == category_id).all()
 
     cat_id_list = [question.id for question in cat_questions]
 
@@ -247,16 +250,12 @@ def create_app(test_config=None):
     next_id = random.choice(cat_id_list)
     next_question = Question.query.get(next_id)
 
+    next_question = next_question.format()
+
 
     return jsonify({
       'success':True,
-      'question':{
-        'id': next_question.id,
-        'question': next_question.question,
-        'answer': next_question.answer, 
-        'difficulty': next_question.difficulty,
-        'category': next_question.category       
-      }
+      'question': next_question
     })
 
   '''
