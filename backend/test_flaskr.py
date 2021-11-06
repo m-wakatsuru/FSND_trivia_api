@@ -38,6 +38,20 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
 
+    def test_retrieve_categories(self):
+        res = self.client().get("/categories")
+        data = json.loads(res.data)
+        
+        self.assertEqual(data["success"], True)
+
+    def test_retrieve_categories(self):
+        res = self.client().get("/categories/1")
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 404)        
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "resource not found")
+
     def test_get_paginated_questions(self):
         res = self.client().get("/questions?page=1")
         data = json.loads(res.data)
@@ -122,16 +136,29 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
+    
 
     def test_showing_next_quiz(self):
         test = {
             "previous_questions": [1, 4, 20, 15],
-	        "quiz_category": "Science"
+	        "quiz_category": {'type': 'Science', 'id': '1'}
         }
         res = self.client().post("/quizzes", json = test)
         data = json.loads(res.data)
 
         self.assertEqual(data["success"], True)
+
+    def test_405_showing_next_quiz(self):
+        test = {
+            "previous_questions": [1, 4, 20, 15],
+	        "quiz_category": {'type': 'Science', 'id': '1'}
+        }
+        res = self.client().get("/quizzes", json = test)
+        data = json.loads(res.data)
+
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
