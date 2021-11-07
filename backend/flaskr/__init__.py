@@ -245,7 +245,9 @@ def create_app(test_config=None):
     # if the category only has one question,
     # show previous question repeatedly.
     if len(cat_id_list) == 0:
-      cat_id_list = previous_id_list
+          return jsonify({
+            'success':True
+          })
     
     next_id = random.choice(cat_id_list)
     next_question = Question.query.get(next_id)
